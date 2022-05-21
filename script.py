@@ -39,33 +39,49 @@ driver.find_element_by_xpath("//button[@type='submit']").click()
 # In case of an error, try changing the
 # XPath used here.
 
+alphabets_lst = list(string.ascii_lowercase)
+looper_dict={}
+for alphabet in alphabets_lst:    
+    list_url = f"https://www.linkedin.com/directory/companies/{alphabet}-1?trk=companies_directory_page_num_nav"
+    driver.get(list_url)
 
-list_url = f"https://www.linkedin.com/directory/companies/b-1?trk=companies_directory_page_num_nav"
-driver.get(list_url)
+    src = driver.page_source
+    # Now using beautiful soup
+    soup = BeautifulSoup(src, 'lxml')
 
-src = driver.page_source
-# Now using beautiful soup
-soup = BeautifulSoup(src, 'lxml')
-
-a = soup.find_all('a', {'class': 'pagination-links__link'})
-print(a[-1].get_text())
-
-# ul = soup.find('ul', {'class': 'listings'})
-# li = ul.findChildren("li" , recursive=False)
-
-# company_name=[]
-
-# for child in li:
-#     child_list=[child.text.strip()]
-#     company_name.append(child_list)
+    a = soup.find_all('a', {'class': 'pagination-links__link'})
+    looper_dict[alphabet] =a[-1].get_text()
 
 
-# file_name="companies.csv"
-# headings= list(string.ascii_lowercase)
-# list_companies=[]
 
-# with open (file_name,"w",newline ='') as f:
-#     csvwriter = csv.writer(f)
-#     csvwriter.writerow(headings) 
-#     csvwriter.writerows(company_name)
+for alaphab,rang in looper_dict.items():
+    file_name=f"csv/{alaphab}.csv"
+    with open (file_name,"w",newline ='') as f:
+        csvwriter = csv.writer(f)
+
+    # csvwriter.writerow(alaphab) 
+        company_name_lst=[]
+        for i in range(1,int(rang)+1):
+            print(f"https://www.linkedin.com/directory/companies/{alaphab}-{i}?trk=companies_directory_page_num_nav")
+            list_url = f"https://www.linkedin.com/directory/companies/{alaphab}-{i}?trk=companies_directory_page_num_nav"
+            driver.get(list_url)
+
+            src = driver.page_source
+            # Now using beautiful soup
+            soup = BeautifulSoup(src, 'lxml')
+            ul = soup.find('ul', {'class': 'listings'})
+            li = ul.findChildren("li" , recursive=False)
+
+
+            for child in li:
+                child_list=[child.text.strip()]
+                company_name_lst.append(child_list)
+
+
+            file_name="companies.csv"
+            headings= list(string.ascii_lowercase)
+            list_companies=[]
+
+        
+        csvwriter.writerows(company_name_lst)
 
